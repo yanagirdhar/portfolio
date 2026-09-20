@@ -48,7 +48,7 @@ ol, ul { list-style: none; }
   gap: 1rem;
   background: transparent;
   border: 1px solid var(--line);
-  padding: 0.5rem 1.75rem 0.5rem 3rem; 
+  padding: 0.5rem 1.75rem 0.5rem 2.25rem;
   border-radius: 50rem;
   font-family: var(--font-mono);
   font-size: 0.95rem;
@@ -104,7 +104,7 @@ ol, ul { list-style: none; }
   aspect-ratio: var(--w) / var(--h);
   border-radius: max(14px, 1.5cqw);
   background: var(--bg);
-  box-shadow: 65px 25px 85px rgba(0, 0, 0, 0.9); /* Large shadow extending far to the right */
+  box-shadow: 65px 25px 85px rgba(0, 0, 0, 0.9);
 }
 .photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
 
@@ -206,7 +206,12 @@ ol, ul { list-style: none; }
     rotate: var(--r, 0deg);
     margin: 0;
   }
-  .project, .project-link, .cards, .about-photos { display: contents; }
+  .project-link, .cards, .about-photos { display: contents; }
+  /* .project must be a real box (not display: contents) so that the
+     opacity/transform scroll animations can apply to it. It covers the stage,
+     so the absolutely-positioned children keep their exact positions. */
+  .project { display: block; position: absolute; inset: 0; pointer-events: none; }
+  .project > * { pointer-events: auto; }   /* links + hover still work */
   .hd--split { display: contents; }
   .about-photos .photo:not(:last-child) { display: block; }
 
@@ -263,4 +268,76 @@ ol, ul { list-style: none; }
   .hero-card { opacity: var(--o, 1); scale: 1; rotate: var(--r, 0deg); translate: 0 0; }
   .ht-outline, .sparkle { opacity: 1; }
   .ht-fill { clip-path: none; }
+}
+
+/* ==========================================================================
+   Custom Scroll Animations (Triggered after scrolling past section headline)
+   ========================================================================== */
+
+.anim-about-top, .anim-about-mid, .anim-about-bot,
+.anim-proj-1, .anim-proj-2, .anim-proj-3,
+.anim-achieve, .anim-work, .anim-next-left, .anim-next-right {
+  opacity: 0;
+  will-change: transform, opacity;
+  transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* 1. About Me: Fade/pan-in Top -> Mid -> Bottom */
+.anim-about-top { transform: translateY(-40px) scale(0.95); transition-delay: 0.1s; }
+.anim-about-mid { transform: translateY(-20px) scale(0.95); transition-delay: 0.3s; }
+.anim-about-bot { transform: translateY(0) scale(0.95); transition-delay: 0.5s; }
+
+/* 2. Projects: Bottom to top order (3 -> 2 -> 1) */
+.anim-proj-3 { transform: translateY(50px); transition-delay: 0.1s; }
+.anim-proj-2 { transform: translateY(50px); transition-delay: 0.25s; }
+.anim-proj-1 { transform: translateY(50px); transition-delay: 0.4s; }
+
+/* 3. Achievements: Right to left */
+.anim-achieve { transform: translateX(80px); }
+
+/* 4. Work Experience: photo slides in from the left */
+.anim-work { transform: translateX(-80px); transition-delay: 0.1s; }
+
+/* 5. Contact/Next: next-left from left, next-right from right */
+.anim-next-left { transform: translateX(-80px); transition-delay: 0.1s; }
+.anim-next-right { transform: translateX(80px); transition-delay: 0.25s; }
+
+/* .photo.dim (specificity 0,2,0) would otherwise override the rules above for
+   the What's Next photos, so match its specificity and keep the 0.7 "dim"
+   as the end state (hover still brightens to 1). */
+.photo.dim.anim-work,
+.photo.dim.anim-next-left,
+.photo.dim.anim-next-right {
+  opacity: 0;
+  transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.photo.dim.anim-work       { transition-delay: 0.1s; }
+.photo.dim.anim-next-left  { transition-delay: 0.1s; }
+.photo.dim.anim-next-right { transition-delay: 0.25s; }
+
+.is-inview .photo.dim.anim-work,
+.is-inview .photo.dim.anim-next-left,
+.is-inview .photo.dim.anim-next-right {
+  opacity: .7;
+  transform: none;
+}
+.is-inview .photo.dim.anim-work:hover,
+.is-inview .photo.dim.anim-next-left:hover,
+.is-inview .photo.dim.anim-next-right:hover {
+  opacity: 1;
+  transition-delay: 0s;
+}
+
+/* Activated state when the section headline is scrolled past */
+.is-inview .anim-about-top,
+.is-inview .anim-about-mid,
+.is-inview .anim-about-bot,
+.is-inview .anim-proj-1,
+.is-inview .anim-proj-2,
+.is-inview .anim-proj-3,
+.is-inview .anim-achieve,
+.is-inview .anim-next-left,
+.is-inview .anim-next-right {
+  opacity: 1;
+  transform: translate(0, 0) scale(1);
 }
