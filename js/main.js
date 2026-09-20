@@ -47,46 +47,51 @@
     if (img.complete && img.naturalWidth === 0) hide();
   });
 
-  // 2. Section scroll animations
+  // 2. Scroll animations
   //
-  // A section's animations play only once the user has scrolled and the top of
-  // that section has moved up past the trigger line. Nothing plays on page load,
-  // and nothing plays while a section is still below the line.
+  // Nothing plays until the page has been scrolled.
+  //  - Desktop: each 1440 x 768 slide plays when its top edge passes the middle
+  //    of the screen (TRIGGER).
+  //  - Phones/tablets: a section is taller than the screen, so each animated
+  //    element plays on its own as it scrolls into view (TRIGGER_EL). Otherwise
+  //    the lower cards would animate off-screen before you reach them.
   //
-  // TRIGGER is a fraction of the viewport height, measured from the top:
-  //   0.5 = when the section's top edge reaches the middle of the screen
-  //   0.2 = later, when it is close to the top of the screen
-  //   0.8 = earlier, as soon as it peeks in from the bottom
+  // Both triggers are fractions of the viewport height, measured from the top:
+  // a smaller number plays later, a bigger one plays earlier.
   var TRIGGER = 0.5;
+  var TRIGGER_EL = 0.88;
 
-  var pending = Array.prototype.slice.call(
+  var phone = window.matchMedia('(max-width: 991.98px)');
+  var sections = Array.prototype.slice.call(
     document.querySelectorAll('#about, #projects, #achievements, #experience, #extracurriculars, #contact')
   );
+  var elements = Array.prototype.slice.call(document.querySelectorAll('[class*="anim-"]'));
 
   function revealAll() {
-    pending.forEach(function (section) { section.classList.add('is-inview'); });
-    pending = [];
+    sections.concat(elements).forEach(function (el) { el.classList.add('is-inview'); });
+    sections = [];
+    elements = [];
   }
 
   var ticking = false;
+
+  function reveal(list, line) {
+    return list.filter(function (el) {
+      if (el.getBoundingClientRect().top <= line) {
+        el.classList.add('is-inview');
+        return false;                             // done, stop tracking it
+      }
+      return true;
+    });
+  }
 
   function check() {
     ticking = false;
     if (window.scrollY < 10) return;              // not scrolled yet: play nothing
 
-    var line = window.innerHeight * TRIGGER;
-    pending = pending.filter(function (section) {
-      if (section.getBoundingClientRect().top <= line) {
-        section.classList.add('is-inview');
-        return false;                             // done, stop tracking it
-      }
-      return true;
-    });
-
-    if (!pending.length) {
-      window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', onScroll);
-    }
+    var vh = window.innerHeight;
+    if (phone.matches) elements = reveal(elements, vh * TRIGGER_EL);
+    else sections = reveal(sections, vh * TRIGGER);
   }
 
   function onScroll() {
