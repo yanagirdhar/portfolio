@@ -276,7 +276,7 @@ ol, ul { list-style: none; }
 
 .anim-about-top, .anim-about-mid, .anim-about-bot,
 .anim-proj-1, .anim-proj-2, .anim-proj-3,
-.anim-achieve, .anim-work, .anim-next-left, .anim-next-right {
+.anim-achieve, .anim-work, .anim-extra, .anim-next-left, .anim-next-right {
   opacity: 0;
   will-change: transform, opacity;
   transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
@@ -298,7 +298,10 @@ ol, ul { list-style: none; }
 /* 4. Work Experience: photo slides in from the left */
 .anim-work { transform: translateX(-80px); transition-delay: 0.1s; }
 
-/* 5. Contact/Next: next-left from left, next-right from right */
+/* 5. Extra Curriculars: photo slides in from the right */
+.anim-extra { transform: translateX(80px); transition-delay: 0.1s; }
+
+/* 6. Contact/Next: next-left from left, next-right from right */
 .anim-next-left { transform: translateX(-80px); transition-delay: 0.1s; }
 .anim-next-right { transform: translateX(80px); transition-delay: 0.25s; }
 
@@ -336,8 +339,106 @@ ol, ul { list-style: none; }
 .is-inview .anim-proj-2,
 .is-inview .anim-proj-3,
 .is-inview .anim-achieve,
+.is-inview .anim-extra,
 .is-inview .anim-next-left,
 .is-inview .anim-next-right {
   opacity: 1;
   transform: translate(0, 0) scale(1);
+}
+
+/* ==========================================================================
+   Listing pages (projects.html / achievements.html)
+   Same tokens, fonts and type scale as the slides. Content flows normally
+   instead of sitting on the 1440 x 768 artboard, but --u still scales the
+   desktop sizes with the browser width exactly like .stage does.
+   ========================================================================== */
+.list-page {
+  --u: calc(100cqw / 1440);   /* 1 design pixel */
+  --k: .05rem;
+  max-width: 1440px;
+  margin-inline: auto;
+  container-type: inline-size;
+}
+.list-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  min-height: 100vh;
+  padding: 4.5rem 1.5rem 5rem;
+}
+.list-head {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.5rem;
+}
+.back-btn { padding: 0.5rem 2.25rem 0.5rem 1.75rem; }   /* arrow sits on the left */
+
+.items { display: flex; flex-direction: column; gap: 3rem; }
+.item {
+  display: grid;
+  gap: 1.25rem;
+  align-items: start;
+}
+.item-body { display: flex; flex-direction: column; align-items: flex-start; }
+.item-body .t-h { margin-bottom: calc(14 * var(--k)); }
+.item:hover .photo.dim,
+.item:focus-within .photo.dim { opacity: 1; }
+
+.take-btn {
+  display: inline-flex;
+  align-items: center;
+  margin-top: calc(22 * var(--k));
+  padding: .6em 1.3em;
+  border: 2px solid var(--accent);
+  border-radius: 50rem;
+  color: var(--accent);
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 1rem;
+  line-height: 1;
+  letter-spacing: -.03em;
+  text-transform: uppercase;
+  transition: background-color .2s ease, color .2s ease;
+}
+.take-btn:hover { background: var(--accent); color: var(--bg); }
+
+/* scroll reveal (only when JS is running, so the content never gets stuck hidden) */
+.js .reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity .9s cubic-bezier(.16, 1, .3, 1), transform .9s cubic-bezier(.16, 1, .3, 1);
+}
+.js .reveal.is-inview { opacity: 1; transform: none; }
+
+@media (min-width: 992px) {
+  .list-page { --k: var(--u); }
+  .list-inner {
+    gap: calc(64 * var(--u));
+    padding: calc(96 * var(--u)) calc(113.8 * var(--u)) calc(120 * var(--u));
+  }
+  .list-head {
+    flex-direction: row-reverse;      /* heading on the left, BACK on the right */
+    align-items: center;
+    justify-content: space-between;
+  }
+  .list-head .read-more-btn { width: calc(217.5 * var(--u)); height: calc(45 * var(--u)); padding-block: 0; }
+  .items { gap: calc(64 * var(--u)); }
+  .item {
+    grid-template-columns: calc(377.1 * var(--u)) minmax(0, 1fr);
+    column-gap: calc(40 * var(--u));
+  }
+  .take-btn { font-size: calc(18 * var(--u)); border-width: 2px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js .reveal { opacity: 1; transform: none; transition: none; }
+}
+
+
+/* ---------- Extra curriculars ---------- */
+.t-italic { font-style: italic; }
+.t-p--lg { font-size: 1.15rem; line-height: 1.45; color: rgba(255, 255, 255, .82); }
+@media (min-width: 992px) {
+  .t-p--lg { font-size: calc(22 * var(--u)); line-height: calc(31.5 / 22); }
 }

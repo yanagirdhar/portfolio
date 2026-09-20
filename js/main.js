@@ -60,7 +60,7 @@
   var TRIGGER = 0.5;
 
   var pending = Array.prototype.slice.call(
-    document.querySelectorAll('#about, #projects, #achievements, #experience, #contact')
+    document.querySelectorAll('#about, #projects, #achievements, #experience, #extracurriculars, #contact')
   );
 
   function revealAll() {
